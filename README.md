@@ -1,321 +1,787 @@
-# NeuroHire AI
+# Community Stability Analysis
 
-Multimodal AI interview intelligence — evaluating what candidates say, how they say it, and how they present, in one platform.
+## A Comparative Stability Analysis of Label Propagation Algorithms for Community Detection in Social Networks
 
-[![License](https://img.shields.io/badge/license-unspecified-lightgrey)](#license)
-[![Python](https://img.shields.io/badge/python-3.11%2B-blue)](backend/requirements.txt)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688)](backend/requirements.txt)
-[![Next.js](https://img.shields.io/badge/Next.js-16-black)](frontend/package.json)
-[![React](https://img.shields.io/badge/React-19-61DAFB)](frontend/package.json)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6)](frontend/tsconfig.json)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](#contributing)
+> **Research project:** Empirical comparison of the run-to-run stability and community quality of four Label Propagation Algorithm (LPA) variants on real-world and synthetic social-network benchmarks.
 
 ---
 
-## Overview
+## Abstract
 
-NeuroHire AI is a full-stack platform that runs a candidate through a structured mock interview and scores the response across three independent dimensions: **what was said** (content quality), **how it was said** (delivery), and **how it was presented** (visual communication). Each dimension is handled by its own ML module, and the system is built so those modules can evolve independently of the web application around them.
+Community detection algorithms are often evaluated by the quality of the communities they produce in a single execution. However, many community-detection methods are stochastic: running the same algorithm multiple times on the same network can produce different community structures.
 
-The project exists as a demonstration of production-style engineering — typed contracts between frontend and backend, a decoupled inference service, background-task processing so ML analysis never blocks the user, and an explicit, honest data model that distinguishes "not yet scored" from "scored zero." It's aimed at engineers who want to see a realistic multi-service AI product, not a single-file LLM wrapper.
+This project studies that **run-to-run stability** for four label-propagation-based community detection algorithms:
 
-## Features
+- **LPA** — Label Propagation Algorithm
+- **Semi-synchronous LPA**
+- **FLPA** — Fast Label Propagation Algorithm
+- **SLPA** — Speaker-Listener Label Propagation Algorithm
 
-### Authentication
-- Email/password signup and login issuing signed JWTs (`python-jose`, HS256)
-- Passwords hashed with `bcrypt` directly (not `passlib`, to avoid its incompatibility with modern bcrypt releases)
-- `GET /auth/me` and all interview/session/report/dashboard routes are protected via a bearer-token dependency
+The study repeatedly runs each algorithm on the same network, compares the resulting community structures pairwise, and relates stability to community quality and network structure.
 
-### Interview Platform
-- Interviews are created against a role track (SWE, ML, Data Analyst, Product Manager), experience level, difficulty, and interview type (technical, behavioral, mixed)
-- Questions are seeded from a deterministic, versioned static question bank at creation time — no randomness, fully reproducible
-- A session flow serves one question at a time, tracks progress, and accepts an answer per question
-- In-browser speech-to-text via the Web Speech API, live webcam capture, and real-time face tracking via MediaPipe's `FaceLandmarker` (eye-contact ratio, posture, and movement are derived client-side per frame and summarized before submission)
+The project is **not proposing a new community-detection algorithm**. It is an empirical and reproducible comparison of existing methods. The original project README explicitly framed the work as reporting the algorithms' observed behavior rather than introducing a new method. fileciteturn17file0L3-L4
 
-### Dashboard
-- Aggregate stats (total interviews, average score, score delta between first and most recent scored session)
-- Skill breakdown and performance-over-time series, computed only from interviews whose report is `ready`
-- Interviews still pending analysis are excluded rather than backfilled with placeholder numbers
+---
 
-### Reports
-- Per-interview NeuroScore, radar chart data, per-module breakdown, and generated feedback (strengths / areas to improve)
-- Report status is either `pending` or `ready`; the frontend polls a stable resource rather than guessing
+# Research Question
 
-### Backend
-- Layered FastAPI service: routes → services → SQLAlchemy models, with Pydantic schemas as the request/response boundary
-- Answer submission is split into a fast synchronous path (validate, persist, return) and a `BackgroundTasks`-dispatched analysis path, so the client can move to the next question immediately instead of waiting on inference
-- The background task opens its own DB session and calls all three ML clients concurrently via `ThreadPoolExecutor`, passing only primitive values (never ORM objects) across the thread boundary
+> **To what extent do algorithmic modifications to the Label Propagation Algorithm — semi-synchronous updating, queue-based fast propagation, and speaker-listener multi-labeling — affect the run-to-run stability of detected community structures in social networks, and does improved stability come at a cost to community detection quality?**
 
-### AI/ML
-- **AnswerMind** — scores relevance, technical correctness, clarity, structure, and completeness from a transcript, using sentence-embedding similarity plus rule-based linguistic scoring, and generates targeted written feedback
-- **SpeechIQ** (implemented as `speechmind`) — scores pace, confidence, filler-word control, and delivery directly from the transcript text and reported duration (no raw audio signal processing)
-- **VisionNet** (implemented as `visionmind`) — scores eye contact, body language, confidence, and presence from client-computed vision signals (face-detected flag, eye-contact ratio, posture score, movement level)
-- **NeuroCore**, the fusion layer that combines all three modules into a final NeuroScore, is defined as a typed contract (`NeuroCoreClient.fuse`) but not yet implemented — it explicitly raises `NotImplementedError` pending its own ml-engine service
+### Objectives
 
-### Frontend
-- Next.js 16 App Router, React 19, TypeScript, Tailwind CSS 4
-- A single typed API client (`lib/api.ts`) wraps every backend call, handles auth headers, and normalizes FastAPI's error shape into one `ApiError` type
-- Recharts-based dashboard visualizations, `framer-motion` for interview-room animation
+1. Compare LPA, Semi-sync LPA, FLPA, and SLPA on common benchmark networks.
+2. Quantify run-to-run stability of detected community structures.
+3. Quantify community detection quality.
+4. Examine the relationship between stability and quality.
+5. Study how network structure affects stability.
+6. Provide a reproducible experimental pipeline with stored raw runs, partitions, metrics, figures, and tables.
 
-### Security
-- JWT-based auth with expiring access tokens
-- Bcrypt password hashing with explicit 72-byte truncation handling
-- Pydantic request validation on every endpoint (e.g. score fields constrained to 0–100, ratios to 0–1)
-- Ownership checks on interviews/reports so one user cannot fetch another user's data by guessing an ID
+---
 
-### Performance
-- ML inference dispatched as a background task, decoupled from the request/response cycle
-- Concurrent execution of the three ML module calls via a thread pool instead of sequential HTTP round-trips
-- Cached embedding model load (`lru_cache`) and cached settings accessor in the backend
+# Why Stability?
 
-## Architecture
+For a stochastic algorithm, a single run does not tell the whole story.
 
-```mermaid
-flowchart TD
-    User([Candidate]) --> Frontend["Frontend (Next.js 16 / React 19)"]
-    Frontend -->|"REST · JWT bearer"| Backend["Backend API (FastAPI)"]
-    Backend --> DB[("Database\nSQLite (dev) / Postgres-ready\nvia SQLAlchemy")]
-    Backend -->|"HTTP (httpx)"| MLEngine["ML Engine (FastAPI)"]
-    MLEngine --> AnswerMind["AnswerMind\nembeddings + scoring"]
-    MLEngine --> SpeechIQ["SpeechIQ\ntranscript-based delivery scoring"]
-    MLEngine --> VisionNet["VisionNet\nclient-signal scoring"]
-    AnswerMind --> NeuroCore["NeuroCore fusion\n(not yet implemented)"]
-    SpeechIQ --> NeuroCore
-    VisionNet --> NeuroCore
-    NeuroCore -.->|planned| Reports["Report generation"]
-    Backend --> Reports
-    Reports --> Dashboard["Dashboard"]
-    Dashboard --> Frontend
-```
-
-The frontend never talks to the ML engine directly. The backend owns persistence and orchestration: it accepts an answer, stores it immediately, and dispatches analysis to the ML engine as a background task. Each ML module is a self-contained FastAPI router mounted on the standalone `ml-engine` service, callable independently of the main backend. Today, AnswerMind, SpeechIQ, and VisionNet each return real scores; the NeuroCore fusion step that would combine them into a final NeuroScore is done today with a straightforward per-question average in the backend's `report_service`, not by a dedicated fusion model — the `NeuroCoreClient` contract exists for when that becomes a real service.
-
-## Tech Stack
-
-| Category | Technology | Purpose |
-|---|---|---|
-| Frontend framework | Next.js 16 (App Router), React 19 | UI, routing, dashboard/report/interview pages |
-| Frontend language | TypeScript | Type-safe components and API contracts |
-| Styling | Tailwind CSS 4 | Utility-first styling, shadcn-style components |
-| Charts | Recharts | Dashboard performance and skill-breakdown charts |
-| Animation | Framer Motion | Interview-room transitions |
-| Computer vision (client) | `@mediapipe/tasks-vision` (FaceLandmarker) | Real-time face landmark detection for eye contact/posture/movement signals |
-| Speech-to-text (client) | Web Speech API | Live transcript capture during interviews |
-| Backend framework | FastAPI | REST API, dependency injection, background tasks |
-| ORM | SQLAlchemy 2.0 | Declarative models, relationships, sessions |
-| Migrations | Alembic | Schema migration tooling (configured; no committed migrations yet) |
-| Database | SQLite (dev default), Postgres-ready | Persistence — swappable via `DATABASE_URL` |
-| Auth | `python-jose`, `bcrypt` | JWT issuance/verification, password hashing |
-| HTTP client | `httpx` | Backend → ML engine calls |
-| ML engine framework | FastAPI | Independent inference service |
-| NLP | `sentence-transformers` (`all-MiniLM-L6-v2`) | Semantic similarity between question and transcript (AnswerMind) |
-| ML tooling | `torch`, `transformers`, `scikit-learn`, `numpy` | Embedding model runtime and supporting numerical operations |
-
-## Project Structure
+Consider the same graph:
 
 ```text
-neurohire-ai/
-├── frontend/                     # Next.js 16 application
-│   ├── app/                      # App Router pages: landing, login, signup, dashboard,
-│   │                              interview/create, interview/room, report, profile
-│   ├── components/                # UI grouped by domain: auth/, dashboard/, interview/,
-│   │                              report/, marketing/, profile/, app/ (shell/sidebar), ui/
-│   └── lib/                       # api.ts (typed API client), mock-data.ts (marketing/
-│                                   decorative placeholders), utils.ts
-├── backend/                       # FastAPI application
-│   ├── app/
-│   │   ├── api/v1/                # Route modules: auth, interviews, sessions, reports, dashboard
-│   │   ├── core/                  # Settings (pydantic-settings) and security (JWT/bcrypt)
-│   │   ├── db/                    # Declarative base, mixins, engine/session factory
-│   │   ├── models/                # SQLAlchemy models: User, Interview, Question, Answer, Report
-│   │   ├── schemas/                # Pydantic request/response contracts
-│   │   ├── services/               # Business logic: interview, session, report, dashboard,
-│   │   │                          question_bank
-│   │   └── ml_clients/             # Typed HTTP clients + dataclass contracts for each ML module
-│   └── migrations/                 # Alembic environment (no versioned migrations committed yet)
-├── ml-engine/                      # Standalone FastAPI inference service
-│   └── app/
-│       ├── answermind/              # Embeddings, preprocessing, scoring, router, service
-│       ├── speechmind/               # Transcript-based delivery scoring, router, service
-│       └── visionmind/                # Client-signal-based visual scoring, router, service
-└── docs/                            # ARCHITECTURE.md, API_DESIGN.md, ML_PIPELINE.md
+             Same graph
+                 |
+       +---------+---------+
+       |         |         |
+     seed 0    seed 1    seed 2
+       |         |         |
+       v         v         v
+   partition  partition  partition
+       \         |         /
+        \        |        /
+         +-------+-------+
+                 |
+          Compare outputs
+                 |
+                 v
+             Stability
 ```
 
-## API Overview
+If repeated runs produce very similar community structures, the algorithm is more reproducible on that network.
 
-Base prefix: `/api/v1`
+If the detected structures vary substantially across seeds, the algorithm exhibits greater run-to-run variability.
 
-| Method | Route | Purpose | Auth Required |
+**Stability is therefore treated as a property separate from community quality.**
+
+---
+
+# Algorithms
+
+| Algorithm | Output type | Main characteristic | Reference |
 |---|---|---|---|
-| POST | `/auth/signup` | Create a user and return a JWT | No |
-| POST | `/auth/login` | Authenticate and return a JWT | No |
-| GET | `/auth/me` | Return the current authenticated user | Yes |
-| POST | `/interviews` | Create an interview and seed its questions | Yes |
-| GET | `/interviews` | List the current user's interviews | Yes |
-| GET | `/interviews/{interview_id}` | Get one interview (ownership-checked) | Yes |
-| GET | `/sessions/{interview_id}/question` | Get the next unanswered question | Yes |
-| POST | `/sessions/{interview_id}/answer` | Submit an answer; dispatches ML analysis in the background | Yes |
-| POST | `/sessions/{interview_id}/finish` | Mark the interview complete and create/update its report | Yes |
-| GET | `/reports/{interview_id}` | Get the report for an interview | Yes |
-| GET | `/dashboard/summary` | Get aggregated dashboard data for the current user | Yes |
-| GET | `/health` | Service health check | No |
+| **LPA** | Hard partition | Asynchronous label propagation | Raghavan, Albert & Kumara (2007) |
+| **Semi-sync LPA** | Hard partition | Randomized initial labels + randomized greedy coloring + Prec-Max updates | Cordasco & Gargano (2010) |
+| **FLPA** | Hard partition | Fast queue-based label propagation | Traag & Šubelj (2023) |
+| **SLPA** | Overlapping cover | Speaker-listener propagation with label memory | Xie, Szymanski & Liu (2011) |
 
-The ML engine (a separate service, default `http://127.0.0.1:8001`) exposes its own internal routes — `/answermind/analyze`, `/speechmind/analyze`, `/visionmind/analyze` — called by the backend's `ml_clients`, not by the frontend.
+### Implementation decisions
 
-## Authentication Flow
+The project deliberately distinguishes the algorithm implementations rather than treating every LPA variant as the same procedure.
 
-```
-Signup (POST /auth/signup)
-        ↓
-Password hashed with bcrypt, user row created
-        ↓
-JWT issued (subject = user id, HS256, configurable expiry)
-        ↓
-Frontend stores the token and attaches it as a Bearer header on every request
-        ↓
-Backend's get_current_user dependency decodes the token, loads the user,
-rejects expired/invalid tokens or inactive accounts (401)
-```
+- **LPA:** randomized sweep order and random tie-breaking, with the current label retained when it is already among the maximally frequent labels.
+- **Semi-sync LPA:** paper-faithful randomized initial labels, randomized greedy coloring, and Prec-Max tie-breaking. It is **not** substituted with NetworkX's deterministic label-propagation implementation.
+- **FLPA:** implemented as a wrapper around NetworkX's `fast_label_propagation_communities(seed=...)`.
+- **SLPA:** overlapping, memory-based propagation with primary parameters `T=100` and `r=0.1`. Seed-controlled listener order is used.
 
-Login follows the same shape, verifying the submitted password against the stored bcrypt hash instead of creating a new user.
+The original methodology records these implementation decisions explicitly. fileciteturn17file0L55-L66
 
-## Data Flow
+---
 
-1. **Create** — the user configures a role, experience level, difficulty, and interview type; the backend creates an `Interview` row and seeds `Question` rows from the static question bank.
-2. **Answer** — the session flow serves one question at a time. The frontend captures a transcript (Web Speech API) and vision signals (MediaPipe face landmarks, summarized into an eye-contact ratio, posture score, and movement level) and posts them to `/sessions/{id}/answer`.
-3. **Persist fast, analyze slow** — the route persists the `Answer` row synchronously and returns immediately, then schedules `analyze_answer_background` as a FastAPI background task.
-4. **Concurrent analysis** — the background task calls AnswerMind, SpeechIQ, and VisionNet concurrently (thread pool), storing each module's raw JSON result on the `Answer` row, or a `{"status": "failed"}` marker if a call errors.
-5. **Finish** — once every question is answered, `/sessions/{id}/finish` marks the interview `completed` and builds (or refreshes) the interview's `Report`.
-6. **Report** — the report is populated by averaging each module's per-question scores into a NeuroScore, a radar chart, a per-module breakdown, and short feedback strings, only once every question's AnswerMind analysis is complete; otherwise the report stays `pending`.
-7. **Dashboard** — aggregate stats and charts are computed from `ready` reports only.
+# Datasets
 
-## AI / Evaluation Pipeline
+The experiment uses **4 real-world networks** and **70 synthetic LFR networks**.
 
-- **AnswerMind** (implemented): computes sentence-embedding similarity between the question and transcript using `sentence-transformers/all-MiniLM-L6-v2`, then derives relevance, technical correctness, clarity, structure, and completeness through rule-based scoring functions layered on top of that similarity and basic text statistics (sentence length, vocabulary variety, keyword presence). Feedback is generated by rule-based templates keyed off the computed scores — there is no LLM call in this module.
-- **SpeechIQ / SpeechMind** (implemented): scores are derived entirely from the transcript text and reported duration — words-per-minute pacing, filler-word and hesitation-phrase detection, sentence-length variance, and repetition rate. There is no audio waveform or prosodic (pitch/energy) analysis; "speech" analysis here is text-based.
-- **VisionNet / VisionMind** (implemented): scores are computed from client-summarized signals (face-detected ratio, eye-contact ratio, posture score, movement level) that the frontend derives per-frame from MediaPipe's `FaceLandmarker` during the interview. The ML engine itself does not process video frames — it scores the pre-computed signals it receives.
-- **NeuroCore fusion**: the typed client contract (`NeuroCoreClient.fuse`) exists in `backend/app/ml_clients/`, but currently raises `NotImplementedError` and has no corresponding route in `ml-engine`. The NeuroScore shown in reports today is computed by simple averaging inside the backend's `report_service`, not by a dedicated fusion model.
+## Real-world networks
 
-## Engineering Decisions
+| Dataset | Nodes | Edges | Preprocessing | Ground truth |
+|---|---:|---:|---|---|
+| **Karate** | 34 | 78 | None | Zachary's two-faction ground truth |
+| **Dolphins** | 62 | 159 | None | Not used |
+| **PolBooks** | 105 | 441 | None | Not currently verified |
+| **PolBlogs** | 1,222 | 16,714 | Symmetrize, remove self-loops/weights, keep LCC | Not currently verified |
 
-- **Typed API client on the frontend** (`lib/api.ts`) centralizes every fetch call, error normalization, and auth-header logic in one place, so components never construct requests manually.
-- **Layered backend** (routes → services → models) keeps route handlers thin; business logic and validation errors live in `services/`, making them independently testable with FastAPI's `TestClient`.
-- **Dataclass I/O contracts for ML clients** (`ml_clients/schemas.py`) are framework-agnostic on purpose, so the same shapes can be reused directly by the standalone `ml-engine` service without a Pydantic dependency leaking into that boundary.
-- **Fast-path/background-path split for answer submission** avoids making the candidate wait on model inference mid-interview, at the cost of a documented race condition (see below) that a future fix will close by re-checking report completion after each background task finishes.
-- **Primitives-only across the background-task boundary** — the background task never receives a SQLAlchemy object or the request-scoped session, because SQLAlchemy ORM instances aren't thread-safe and the original session is closed by the time the task runs.
-- **Denormalized display labels** (`role_label`, `difficulty_label` on `Interview`) avoid a join purely to render "ML Engineer" or "Advanced" in list views.
+The Karate ground truth was verified against the NetworkX `club` labels and edge set. Dolphins has no agreed ground truth in the project. PolBooks and PolBlogs ground-truth evaluation is only used where label data can be obtained and alignment verified. fileciteturn17file0L31-L45
 
-## Security
+### PolBlogs preprocessing
 
-- Passwords are hashed with `bcrypt` (never stored or logged in plaintext); a documented 72-byte truncation matches bcrypt's own input limit.
-- Access tokens are signed JWTs with a configurable expiry (`ACCESS_TOKEN_EXPIRE_MINUTES`), verified on every protected route via a shared dependency.
-- All request bodies are validated by Pydantic schemas — numeric scores and ratios are range-constrained at the schema level (e.g. `ge=0, le=100`).
-- Interview and report lookups are always scoped to `current_user.id`, so one account cannot enumerate or read another account's data by guessing an ID.
-- `SECRET_KEY` and `DATABASE_URL` are read from environment variables via `pydantic-settings`, never hardcoded outside `core/config.py`.
+The raw PolBlogs network is directed and weighted. The preprocessing pipeline:
 
-## Performance
+1. Symmetrizes the graph.
+2. Removes self-loops.
+3. Removes edge weights.
+4. Extracts the largest connected component.
+5. Preserves an original-node-ID mapping.
 
-- Answer submission returns to the client before ML inference runs, via FastAPI `BackgroundTasks`.
-- AnswerMind, SpeechIQ, and VisionNet analysis for a single answer run concurrently in a `ThreadPoolExecutor`, not sequentially.
-- The sentence-embedding model is loaded once and cached with `@lru_cache`, avoiding repeated model loads per request.
-- Application settings are cached via `@lru_cache` rather than re-read from the environment on every request.
+The resulting analysis graph contains:
 
-## Setup
-
-### Requirements
-- Python 3.11+
-- Node.js 20+
-- pnpm (frontend lockfile is `pnpm-lock.yaml`) or npm
-
-### Clone
-```bash
-git clone https://github.com/codebyshambhavi/neurohire-ai.git
-cd neurohire-ai
+```text
+1,222 nodes
+16,714 edges
 ```
 
-### Backend setup
-```bash
-cd backend
-python -m venv .venv
-source .venv/bin/activate      # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-cp .env.example .env           # then fill in a real SECRET_KEY
-uvicorn app.main:app --reload --port 8000
-```
-The dev lifespan hook calls `Base.metadata.create_all()` automatically when `ENVIRONMENT` is not `production`, so no manual migration step is required for local development. SQLite (`neurohire.db`) is the default; set `DATABASE_URL` to a Postgres DSN for anything beyond local dev.
+The preprocessing details and original-ID mapping are retained in the project outputs. fileciteturn17file0L40-L42
 
-### ML engine setup
-```bash
-cd ml-engine
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8001
-```
-First startup downloads and caches the `all-MiniLM-L6-v2` sentence-transformer model.
+---
 
-### Frontend setup
-```bash
-cd frontend
-pnpm install     # or: npm install
-pnpm dev         # or: npm run dev
-```
-By default the frontend expects the backend at `http://127.0.0.1:8000`; override with the `NEXT_PUBLIC_API_URL` environment variable if needed.
+# LFR Synthetic Benchmark
 
-### Environment variables (backend)
-| Variable | Default | Purpose |
+The project contains **70 LFR graphs**:
+
+```text
+7 nominal μ levels
+×
+10 graph instances per level
+=
+70 graphs
+```
+
+### Parameters
+
+| Parameter | Value |
+|---|---:|
+| Nodes | 1,000 |
+| τ1 | 3 |
+| τ2 | 1.5 |
+| Average degree | 10 |
+| Maximum degree | 50 |
+| Community size | 20–100 |
+| Nominal μ | 0.1–0.7 |
+| Instances per μ | 10 |
+
+Each graph has its own deterministic generation seed.
+
+### Nominal vs empirical μ
+
+The requested LFR mixing parameter and the actually observed mixing parameter are both retained.
+
+**Empirical μ is used for the main structural analysis**, because the generated graph may differ slightly from the nominal parameter.
+
+The project records empirical μ in:
+
+```text
+data/lfr/*/meta.json
+results/processed/lfr_instances.csv
+```
+
+The project also documents that its NetworKit generator is a reimplementation rather than the original Lancichinetti binary. fileciteturn17file0L47-L53
+
+---
+
+# Experimental Design
+
+Every graph–algorithm combination is executed **30 independent times** using seeds `0–29`.
+
+### Real networks
+
+```text
+4 graphs × 4 algorithms × 30 runs
+= 480 runs
+```
+
+### LFR networks
+
+```text
+70 graphs × 4 algorithms × 30 runs
+= 8,400 runs
+```
+
+### Complete experiment
+
+```text
+480 + 8,400
+= 8,880 raw runs
+```
+
+For each graph–algorithm group, all unique pairs of the 30 runs are compared:
+
+\[
+\binom{30}{2}=435
+\]
+
+There are:
+
+```text
+74 graphs × 4 algorithms
+= 296 graph–algorithm groups
+```
+
+Therefore:
+
+```text
+296 × 435
+= 128,760 pairwise comparisons
+```
+
+---
+
+# Metrics
+
+## Stability metrics
+
+### Variation of Information — VI
+
+Measures the information-theoretic difference between two partitions.
+
+```text
+Lower VI → greater agreement
+VI = 0   → identical hard partitions
+```
+
+### Normalized Variation of Information — NVI
+
+Normalized form of VI.
+
+```text
+Lower NVI → greater agreement
+```
+
+### Normalized Mutual Information — NMI
+
+Measures agreement between community assignments.
+
+```text
+Higher NMI → greater agreement
+NMI = 1    → identical hard partitions
+```
+
+### Omega
+
+Used as a common stability metric across the four algorithm outputs.
+
+```text
+Higher Omega → greater agreement
+Omega = 1    → identical covers/partitions
+```
+
+### Overlapping NMI — ONMI
+
+Used for overlapping community structures produced by SLPA.
+
+The project does **not** force hard-partition metrics onto overlapping covers. The metric selection is representation-aware. fileciteturn17file0L81-L104
+
+### Metric applicability
+
+| Algorithm | VI | NVI | NMI | Omega | ONMI |
+|---|---:|---:|---:|---:|---:|
+| LPA | ✓ | ✓ | ✓ | ✓ | — |
+| Semi-sync LPA | ✓ | ✓ | ✓ | ✓ | — |
+| FLPA | ✓ | ✓ | ✓ | ✓ | — |
+| SLPA | — | — | — | ✓ | ✓ |
+
+---
+
+# Community Quality
+
+Stability does **not** imply quality.
+
+The project therefore evaluates the detected communities separately using:
+
+- **Modularity (Q)** for hard partitions.
+- **Extended Modularity (EQ)** for overlapping communities.
+- **Ground-truth NMI/ONMI** where verified ground truth is available.
+
+This creates two separate questions:
+
+```text
+STABILITY
+"Does the algorithm repeatedly produce
+similar community structures?"
+
+QUALITY
+"How good / meaningful are those
+community structures according to
+the selected quality criterion?"
+```
+
+The project then studies their relationship rather than treating one as a substitute for the other. fileciteturn17file0L108-L129
+
+---
+
+# Experimental Pipeline
+
+```text
+                    ┌──────────────────┐
+                    │      DATASETS    │
+                    │ Real + LFR       │
+                    └────────┬─────────┘
+                             │
+                             ▼
+                    ┌──────────────────┐
+                    │ Load + Validate  │
+                    │ + Preprocess     │
+                    └────────┬─────────┘
+                             │
+                             ▼
+              ┌──────────────────────────────┐
+              │   Community Detection        │
+              │                              │
+              │ LPA | Semi-sync | FLPA | SLPA│
+              └──────────────┬───────────────┘
+                             │
+                    30 runs / group
+                             │
+                             ▼
+                  ┌────────────────────┐
+                  │ Raw partitions +   │
+                  │ per-run metadata   │
+                  └─────────┬──────────┘
+                            │
+             ┌──────────────┴──────────────┐
+             ▼                             ▼
+    ┌─────────────────┐          ┌─────────────────┐
+    │ Stability       │          │ Community       │
+    │ VI/NVI/NMI/     │          │ Quality        │
+    │ Omega/ONMI      │          │ Q/EQ/GT        │
+    └────────┬────────┘          └────────┬────────┘
+             │                            │
+             └─────────────┬──────────────┘
+                           ▼
+                 ┌────────────────────┐
+                 │ Stability × Quality│
+                 └─────────┬──────────┘
+                           │
+                           ▼
+                 ┌────────────────────┐
+                 │ LFR μ Analysis     │
+                 └─────────┬──────────┘
+                           │
+                           ▼
+                 ┌────────────────────┐
+                 │ Statistical Tests  │
+                 └─────────┬──────────┘
+                           │
+                           ▼
+                 ┌────────────────────┐
+                 │ Figures + Tables   │
+                 └────────────────────┘
+```
+
+---
+
+# Reproducible Experiment Pipeline
+
+The implementation is organized as a sequence of stages.
+
+| Stage | Component | Status |
 |---|---|---|
-| `ENVIRONMENT` | `development` | Gates dev-only behavior like `create_all` |
-| `DATABASE_URL` | `sqlite:///./neurohire.db` | SQLAlchemy connection string |
-| `SECRET_KEY` | *(dev placeholder — change this)* | JWT signing secret |
-| `JWT_ALGORITHM` | `HS256` | JWT signing algorithm |
-| `ACCESS_TOKEN_EXPIRE_MINUTES` | `1440` | Token lifetime |
-| `CORS_ORIGINS` | `http://localhost:3000,http://127.0.0.1:3000` | Allowed frontend origins |
-| `ML_ENGINE_URL` | `http://127.0.0.1:8001` | Base URL for the ML engine service |
-| `ML_ENGINE_TIMEOUT_SECONDS` | `120` | Timeout for ML engine calls |
+| 1 | Repository skeleton and configuration | ✅ |
+| 2 | Dataset layer, preprocessing, LFR generation/cache | ✅ |
+| 3 | Metrics and validation | ✅ |
+| 4 | Algorithm implementations and validation | ✅ |
+| 5 | Experiment runner and storage | ✅ |
+| 6 | Pairwise stability analysis + bootstrap CIs | ✅ |
+| 7 | Quality × stability analysis | ✅ |
+| 8 | LFR μ analysis | ✅ |
+| 9 | Statistical analysis | ✅ |
+| 10 | Figures and tables | ✅ |
+| 11 | Final experiment assembly and validation | ✅ |
 
-### Development workflow
-Run all three services locally (`ml-engine` on 8001, `backend` on 8000, `frontend` on 3000) — the backend needs the ML engine reachable for analysis to complete rather than fail. FastAPI's `TestClient` is used for backend smoke tests during development.
+The original Claude README described the early development stages as a build-status table; this version updates that structure to reflect the **completed final project** rather than leaving stages 8–11 marked as pending. fileciteturn17file0L6-L18
 
-## Example Workflow
+---
 
-```
-Sign up / log in
-        ↓
-Create an interview (role, experience level, difficulty, type)
-        ↓
-Answer each question in the session (speech captured live, webcam tracked)
-        ↓
-Backend persists the answer instantly, analysis runs in the background
-        ↓
-Finish the interview → report is generated once analysis for every
-question has completed
-        ↓
-Dashboard updates with the newly scored interview
+# Stage 5 — Experiment Runner
+
+The runner executes every:
+
+```text
+(graph, algorithm, seed)
 ```
 
-## Screenshots
+combination.
 
-_Screenshots to be added._
+For each run it stores:
 
-## Future Improvements
+- the detected partition/cover,
+- a JSON run record,
+- quality information,
+- runtime,
+- seed,
+- number of communities,
+- convergence information,
+- degeneracy information.
 
-- Implement the NeuroCore fusion service so NeuroScore reflects a purpose-built fusion model rather than a plain average
-- Close the race condition where a report can remain `pending` indefinitely if the interview is finished before the last answer's background analysis completes
-- Add real audio-signal processing (pitch, energy, pause detection) to SpeechIQ instead of scoring from transcript text alone
-- Commit versioned Alembic migrations instead of relying on `create_all()` for schema management
-- Add CI (lint + backend tests) and a Dockerized dev environment for the three services
-- OAuth login options alongside email/password
-- Export functionality for reports (PDF/CSV)
+The storage layer uses atomic writes and can skip already-complete runs, allowing interrupted experiments to be resumed. `runs.csv` is rebuilt deterministically from the stored run records rather than treated as an append-only log. fileciteturn17file0L73-L78
 
-## Contributing
+---
 
-Issues and pull requests are welcome. Before opening a PR:
-1. Open an issue describing the change if it's more than a small fix.
-2. Keep backend changes consistent with the existing layered structure (routes stay thin; logic lives in `services/`).
-3. Keep ML module contracts (`ml_clients/schemas.py`) framework-agnostic.
-4. Run the backend smoke tests (`TestClient`) before submitting.
-5. Match existing naming conventions (AnswerMind / SpeechIQ / VisionNet / NeuroCore).
+# Stage 6 — Stability Analysis
 
-## License
+The stability stage operates on **stored experiment results** rather than rerunning the algorithms.
 
-License to be added.
+For each `(graph, algorithm)` group:
+
+```text
+30 stored runs
+       ↓
+435 unique run pairs
+       ↓
+VI / NVI / NMI / Omega / ONMI
+       ↓
+mean / median / std
+       ↓
+bootstrap confidence intervals
+```
+
+The main outputs are:
+
+```text
+results/processed/pairwise.csv
+results/processed/stability_summary.csv
+```
+
+Bootstrap resampling is performed at the **run level**, rather than treating the 435 pairwise comparisons as independent observations. A deterministic seed stream makes the analysis reproducible. fileciteturn17file0L81-L104
+
+---
+
+# Stage 7 — Quality × Stability
+
+The quality–stability stage joins:
+
+```text
+Stage 5
+per-run quality
+        +
+Stage 6
+stability summary
+```
+
+to produce one graph–algorithm-level record.
+
+Outputs:
+
+```text
+results/processed/quality_stability_summary.csv
+results/processed/quality_stability_correlations.csv
+results/figures/stage7/
+```
+
+Spearman correlations are calculated using the graph–algorithm group as the unit of observation rather than individual pairwise comparisons. The analysis is descriptive and does not produce an overall algorithm ranking. fileciteturn17file0L108-L139
+
+---
+
+# Stage 8 — LFR μ Analysis
+
+The LFR analysis examines how stability and quality vary with network mixing.
+
+The primary structural variable is:
+
+```text
+empirical μ
+```
+
+rather than nominal μ.
+
+This allows the analysis to use the actual generated network structure rather than assuming every generated graph exactly matches its requested parameter.
+
+---
+
+# Stage 9 — Statistical Analysis
+
+For the LFR benchmark, algorithms are evaluated on the same graph instances, enabling paired/repeated-measures analysis.
+
+The statistical pipeline uses:
+
+1. **Friedman test** for overall repeated-measures differences.
+2. **Wilcoxon signed-rank tests** for paired post-hoc comparisons when appropriate.
+3. **Holm correction** for multiple comparisons.
+4. **Rank-biserial effect size** for paired comparisons.
+
+Current stored outputs include:
+
+```text
+5 Friedman test rows
+15 post-hoc comparison rows
+```
+
+ONMI is not included in the same four-algorithm statistical comparison because it is only available for the overlapping SLPA output in the current design.
+
+---
+
+# Stage 10 — Figures and Tables
+
+The final artifact contains **8 final figures**, **4 Stage 7 figures**, and **7 final tables**.
+
+### Final figures
+
+```text
+fig01_stability_comparison.png
+fig02_quality_comparison.png
+fig03_stability_quality_relationship.png
+fig04_lfr_mu_stability.png
+fig05_lfr_mu_quality.png
+fig06_community_structure.png
+fig07_real_network_comparison.png
+fig08_experiment_completeness.png
+```
+
+### Stage 7 figures
+
+```text
+community_count_variability_vs_stability.png
+quality_vs_stability_by_dataset.png
+stability_vs_ground_truth.png
+stability_vs_quality.png
+```
+
+### Final tables
+
+```text
+table01_dataset_characteristics.csv
+table02_algorithm_characteristics.csv
+table03_stability_statistics.csv
+table04_quality_statistics.csv
+table05_lfr_mu_analysis.csv
+table06_statistical_significance.csv
+table07_experiment_completeness.csv
+```
+
+---
+
+# Repository Structure
+
+```text
+community-stability-analysis/
+│
+├── README.md
+├── main.py
+├── config.yaml
+├── requirements.txt
+├── pytest.ini
+│
+├── data/
+│   ├── raw/
+│   └── lfr/
+│
+├── docs/
+│
+├── notebooks/
+│
+├── results/
+│   ├── raw/
+│   │   ├── runs.csv
+│   │   └── partitions/
+│   │
+│   ├── processed/
+│   │   ├── pairwise.csv
+│   │   ├── stability_summary.csv
+│   │   ├── quality_stability_summary.csv
+│   │   ├── quality_stability_correlations.csv
+│   │   ├── statistical_tests.csv
+│   │   ├── posthoc_tests.csv
+│   │   ├── lfr_instances.csv
+│   │   └── stability_chunks/
+│   │
+│   ├── figures/
+│   │   ├── final/
+│   │   └── stage7/
+│   │
+│   └── tables/
+│       └── final/
+│
+├── src/
+│   ├── algorithms/
+│   ├── data/
+│   ├── experiments/
+│   ├── metrics/
+│   └── ...
+│
+├── tests/
+│
+└── tools/
+```
+
+---
+
+# Quick Start
+
+## 1. Create a virtual environment
+
+```bash
+python -m venv .venv
+```
+
+### Windows PowerShell
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+## 2. Install dependencies
+
+```bash
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
+
+## 3. Check the CLI
+
+```bash
+python main.py --help
+```
+
+## 4. Run a small example
+
+For example, run one LPA seed on Karate:
+
+```bash
+python main.py run --graphs karate --algorithms lpa --seeds 0
+```
+
+This executes one stochastic community-detection run and records its partition, quality, runtime, and metadata.
+
+## 5. Analyze the 30 stored Karate/LPA runs
+
+```bash
+python main.py stability --graphs karate --algorithms lpa
+```
+
+For the complete stored experiment, the repository already contains the generated raw and processed results, so the full 8,880-run experiment does not need to be rerun simply to inspect the research outputs.
+
+---
+
+# Testing
+
+The final validation run completed with:
+
+```text
+189 passed
+2 skipped
+```
+
+The two skipped tests require the optional `networkit` dependency for fresh LFR regeneration. The stored LFR benchmark graphs remain available in the project.
+
+The tests cover:
+
+- dataset validation,
+- graph preprocessing,
+- metric correctness,
+- algorithm behavior,
+- deterministic seed behavior,
+- partition/cover validity,
+- experiment storage,
+- resumability,
+- stability calculations,
+- quality–stability joins,
+- statistical analysis,
+- figure/table generation.
+
+---
+
+# Reproducibility and Integrity
+
+The project records seeds, dataset metadata, algorithm identity, graph identity, run metadata, quality metrics, runtime, degeneracy/convergence information, and partition references.
+
+Dataset integrity is additionally supported through SHA-256 manifests and preprocessing metadata. The original project design explicitly uses manifest checksums to detect byte-level dataset changes. fileciteturn17file0L42-L45
+
+The completed experiment contains:
+
+| Artifact | Count |
+|---|---:|
+| Raw experiment runs | **8,880** |
+| Graph–algorithm groups | **296** |
+| Pairwise stability comparisons | **128,760** |
+| LFR graphs | **70** |
+| Final figures | **8** |
+| Stage 7 figures | **4** |
+| Final tables | **7** |
+
+---
+
+# Interpretation Notes
+
+## Stability is not the same as quality
+
+Repeatedly producing the same communities does not automatically mean those communities are structurally meaningful.
+
+The project therefore keeps stability and quality as separate quantities and studies their relationship.
+
+## High-μ LFR cases
+
+At higher LFR mixing levels, some LPA-family runs can collapse into trivial community structures.
+
+A highly consistent trivial output should therefore not be interpreted as meaningful community-detection success without considering:
+
+- degeneracy,
+- quality,
+- number of communities,
+- and the underlying network structure.
+
+## SLPA is structurally different
+
+SLPA produces overlapping covers, whereas LPA, Semi-sync LPA, and FLPA produce hard partitions.
+
+Consequently:
+
+- hard-partition metrics are not forced onto SLPA,
+- overlapping metrics are used where appropriate,
+- ONMI is treated separately in analyses where it is applicable.
+
+---
+
+# Limitations
+
+- Not every real-world network has verified ground-truth communities.
+- SLPA's overlapping output makes some direct metric comparisons different from those for hard-partition algorithms.
+- High LFR mixing can produce degenerate community structures.
+- Bootstrap confidence intervals follow the implemented run-level resampling procedure.
+- The selected datasets and algorithms do not represent every community-detection method or every network type.
+- The project is an empirical comparison and should not be interpreted as establishing a universal ranking of community-detection algorithms.
+
+---
+
+# References
+
+### Core algorithms
+
+**LPA**
+
+Raghavan, U. N., Albert, R., & Kumara, S. (2007). *Near linear time algorithm to detect community structures in large-scale networks*. Physical Review E, 76, 036106.
+
+**Semi-synchronous LPA**
+
+Cordasco, G., & Gargano, L. (2010). *Community detection via semi-synchronous label propagation algorithms*.
+
+**FLPA**
+
+Traag, V. A., & Šubelj, L. (2023). *Fast label propagation for community detection*. Scientific Reports, 13, 2701.
+
+**SLPA**
+
+Xie, J., Szymanski, B. K., & Liu, X. (2011). *SLPA: Uncovering overlapping communities in social networks via a speaker-listener interaction dynamic process*.
+
+### Related work
+
+- Meena, S. S. et al. (2025). *Graph embedding based label propagation for community detection in social networks*. Scientific Reports.
+- Wu, X. et al. (2026). *Label acceptance based label propagation algorithm for community detection*. Information Processing & Management.
+- Yu, J. et al. (2025). *A framework for overlapping and non-overlapping communities detection based on seed extension and label propagation*. Physica A.
+- Teng, M. et al. (2026). *Multi-scale graph contrastive learning for community detection in dynamic graphs*. Information Processing & Management.
+- Paoletti, G. et al. (2025). *CoDÆN: Benchmarks and Comparison of Evolutionary Community Detection Algorithms for Dynamic Networks*. ACM Transactions on the Web.
+
+---
+
+# Project Status
+
+## ✅ Completed
+
+The final project contains:
+
+- complete algorithm implementations,
+- real and synthetic benchmark networks,
+- 8,880 stored experimental runs,
+- 128,760 pairwise stability comparisons,
+- stability summaries and bootstrap confidence intervals,
+- quality–stability analysis,
+- LFR μ analysis,
+- statistical analysis,
+- final figures and tables,
+- automated tests,
+- reproducibility metadata.
+
+**This repository is intended to document the complete experimental study, not just the source code.**
