@@ -1,0 +1,23 @@
+{
+  "algorithm": "semi_sync_lpa",
+  "converged": true,
+  "dataset": "lfr",
+  "degenerate": false,
+  "f1": null,
+  "graph_id": "lfr_mu30_i09",
+  "instance": 9,
+  "iterations": 6,
+  "largest_community_size": 236,
+  "mu_empirical": 0.33,
+  "mu_nominal": 0.3,
+  "nmi": 0.9201253660751926,
+  "number_of_communities": 17,
+  "onmi": 0.87284097957452,
+  "partition_file": "partitions/lfr_mu30_i09/semi_sync_lpa/seed018.csv",
+  "partition_kind": "hard",
+  "quality": 0.57319076,
+  "quality_metric": "Q",
+  "run": 18,
+  "runtime_seconds": 0.019936131999997997,
+  "seed": 18
+}

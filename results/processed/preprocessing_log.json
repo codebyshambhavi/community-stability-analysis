@@ -1,0 +1,87 @@
+{
+  "karate": {
+    "source_file": "karate/soc-karate.mtx",
+    "final_n": 34,
+    "final_m": 78,
+    "ground_truth": "networkx.karate_club_graph 'club' (edge set verified identical to .mtx)",
+    "steps": [
+      {
+        "step": "symmetrize_and_clean",
+        "n": 34,
+        "stored_entries_before": 156,
+        "weight_sum_before": 156.0,
+        "input_was_symmetric": true,
+        "self_loops_dropped": 0,
+        "undirected_edges_after": 78,
+        "isolated_nodes_after": 0,
+        "rule": "edge iff arc in either direction; weights/multiplicity discarded; loops dropped"
+      }
+    ]
+  },
+  "dolphins": {
+    "source_file": "dolphins/dolphins.mtx",
+    "final_n": 62,
+    "final_m": 159,
+    "ground_truth": "none: no agreed ground truth (deliberately not invented)",
+    "steps": [
+      {
+        "step": "symmetrize_and_clean",
+        "n": 62,
+        "stored_entries_before": 318,
+        "weight_sum_before": 318.0,
+        "input_was_symmetric": true,
+        "self_loops_dropped": 0,
+        "undirected_edges_after": 159,
+        "isolated_nodes_after": 0,
+        "rule": "edge iff arc in either direction; weights/multiplicity discarded; loops dropped"
+      }
+    ]
+  },
+  "polbooks": {
+    "source_file": "polbooks/polbooks.mtx",
+    "final_n": 105,
+    "final_m": 441,
+    "ground_truth": "none yet: label file not obtained/verified (deferred)",
+    "steps": [
+      {
+        "step": "symmetrize_and_clean",
+        "n": 105,
+        "stored_entries_before": 882,
+        "weight_sum_before": 882.0,
+        "input_was_symmetric": true,
+        "self_loops_dropped": 0,
+        "undirected_edges_after": 441,
+        "isolated_nodes_after": 0,
+        "rule": "edge iff arc in either direction; weights/multiplicity discarded; loops dropped"
+      }
+    ]
+  },
+  "polblogs": {
+    "source_file": "polblogs/polblogs.mtx",
+    "final_n": 1222,
+    "final_m": 16714,
+    "ground_truth": "none yet: label file not obtained/verified (deferred)",
+    "steps": [
+      {
+        "step": "symmetrize_and_clean",
+        "n": 1490,
+        "stored_entries_before": 19025,
+        "weight_sum_before": 19090.0,
+        "input_was_symmetric": false,
+        "self_loops_dropped": 3,
+        "undirected_edges_after": 16715,
+        "isolated_nodes_after": 266,
+        "rule": "edge iff arc in either direction; weights/multiplicity discarded; loops dropped"
+      },
+      {
+        "step": "largest_connected_component",
+        "n_before": 1490,
+        "m_before": 16715,
+        "n_components_before": 268,
+        "n_after": 1222,
+        "m_after": 16714,
+        "nodes_removed": 268
+      }
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+algorithm,graphs_planned,runs_per_graph_planned,runs_planned_total,runs_completed,fraction_complete
+lpa,74,30,2220,2220,1.0
+semi_sync_lpa,74,30,2220,2220,1.0
+flpa,74,30,2220,2220,1.0
+slpa,74,30,2220,2220,1.0

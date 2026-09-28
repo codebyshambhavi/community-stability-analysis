@@ -1,0 +1,23 @@
+{
+  "algorithm": "flpa",
+  "converged": true,
+  "dataset": "polblogs",
+  "degenerate": false,
+  "f1": null,
+  "graph_id": "polblogs",
+  "instance": null,
+  "iterations": null,
+  "largest_community_size": 659,
+  "mu_empirical": null,
+  "mu_nominal": null,
+  "nmi": null,
+  "number_of_communities": 6,
+  "onmi": null,
+  "partition_file": "partitions/polblogs/flpa/seed027.csv",
+  "partition_kind": "hard",
+  "quality": 0.4259172097706555,
+  "quality_metric": "Q",
+  "run": 27,
+  "runtime_seconds": 0.031213952999998185,
+  "seed": 27
+}

@@ -1,0 +1,23 @@
+{
+  "algorithm": "lpa",
+  "converged": true,
+  "dataset": "polblogs",
+  "degenerate": false,
+  "f1": null,
+  "graph_id": "polblogs",
+  "instance": null,
+  "iterations": 4,
+  "largest_community_size": 661,
+  "mu_empirical": null,
+  "mu_nominal": null,
+  "nmi": null,
+  "number_of_communities": 11,
+  "onmi": null,
+  "partition_file": "partitions/polblogs/lpa/seed013.csv",
+  "partition_kind": "hard",
+  "quality": 0.4260513477848315,
+  "quality_metric": "Q",
+  "run": 13,
+  "runtime_seconds": 0.018383591999999283,
+  "seed": 13
+}

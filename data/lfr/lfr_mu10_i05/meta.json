@@ -1,0 +1,32 @@
+{
+  "community_size_max": 73,
+  "community_size_min": 21,
+  "degree_max": 47,
+  "degree_mean": 10.078,
+  "generator": "networkit.LFRGenerator",
+  "graph_id": "lfr_mu10_i05",
+  "instance": 5,
+  "m": 5039,
+  "mu_empirical": 0.1127207779321294,
+  "mu_index": 0,
+  "mu_nominal": 0.1,
+  "n": 1000,
+  "n_communities": 24,
+  "n_components": 1,
+  "networkit_version": "11.2.2",
+  "numpy_version": "2.4.4",
+  "params": {
+    "average_degree": 10,
+    "max_community": 100,
+    "max_degree": 50,
+    "min_community": 20,
+    "n": 1000,
+    "tau1": 3.0,
+    "tau2": 1.5
+  },
+  "python_version": "3.12.3",
+  "scipy_version": "1.17.1",
+  "seed": 1005,
+  "sha256_edges": "b334845ee782d6ccbebce5e548ce9f8031bb5a46ad9b0d9eeea0e75dcfbc56bf",
+  "sha256_membership": "93134093d1969181737ab21263b8492e7f4c7bd42b2e6f5ed34a46ef50dc6ef4"
+}

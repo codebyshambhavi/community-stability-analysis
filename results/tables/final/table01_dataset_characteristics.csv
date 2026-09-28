@@ -1,0 +1,12 @@
+graph_id,family,n,m,mu_nominal,mu_empirical_mean,n_instances,ground_truth
+karate,real,34,78.0,,,1,networkx.karate_club_graph 'club' (edge set verified identical to .mtx)
+dolphins,real,62,159.0,,,1,none: no agreed ground truth (deliberately not invented)
+polbooks,real,105,441.0,,,1,none yet: label file not obtained/verified (deferred)
+polblogs,real,1222,16714.0,,,1,none yet: label file not obtained/verified (deferred)
+lfr_mu0.1,lfr,1000,5024.7,0.1,0.1135974857676965,10,planted (LFR community assignment)
+lfr_mu0.2,lfr,1000,4941.1,0.2,0.2446699214795328,10,planted (LFR community assignment)
+lfr_mu0.3,lfr,1000,5031.3,0.3,0.3320022441544225,10,planted (LFR community assignment)
+lfr_mu0.4,lfr,1000,4991.8,0.4,0.43549229411314405,10,planted (LFR community assignment)
+lfr_mu0.5,lfr,1000,4977.1,0.5,0.5135000068554283,10,planted (LFR community assignment)
+lfr_mu0.6,lfr,1000,4970.1,0.6,0.6273200000585134,10,planted (LFR community assignment)
+lfr_mu0.7,lfr,1000,4963.5,0.7,0.73798628283021,10,planted (LFR community assignment)

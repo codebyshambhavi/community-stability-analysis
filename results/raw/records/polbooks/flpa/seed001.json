@@ -1,0 +1,23 @@
+{
+  "algorithm": "flpa",
+  "converged": true,
+  "dataset": "polbooks",
+  "degenerate": false,
+  "f1": null,
+  "graph_id": "polbooks",
+  "instance": null,
+  "iterations": null,
+  "largest_community_size": 41,
+  "mu_empirical": null,
+  "mu_nominal": null,
+  "nmi": null,
+  "number_of_communities": 6,
+  "onmi": null,
+  "partition_file": "partitions/polbooks/flpa/seed001.csv",
+  "partition_kind": "hard",
+  "quality": 0.48864927679310577,
+  "quality_metric": "Q",
+  "run": 1,
+  "runtime_seconds": 0.0019356269999981635,
+  "seed": 1
+}

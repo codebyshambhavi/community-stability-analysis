@@ -1,0 +1,30 @@
+{
+ "stage": 11,
+ "raw_runs": 8880,
+ "lfr_runs": 8400,
+ "real_runs": 480,
+ "stability_groups": 296,
+ "bootstrap": {
+  "n": 2000,
+  "seed": 20240607
+ },
+ "figures_final": 8,
+ "figures_stage7": 4,
+ "tables_final": 7,
+ "tests": {
+  "passed": 189,
+  "failed": 0,
+  "skipped": 2,
+  "runner": "minimal pytest stand-in (real pytest not installable offline); skipped: networkit-dependent LFR regeneration tests"
+ },
+ "sha256": {
+  "results/raw/runs.csv": "ee0fbf45408af7a508e553096791d8f4a00716ba2254a4e553299e7c56028faf",
+  "results/processed/pairwise.csv": "dabf040a7b54b40cea76f65b44cdbc6794172742adf3e54d99fd80e0cbc2bd97",
+  "results/processed/stability_summary.csv": "947848473f393728ea9dccadd4dfe01719c170f0e9a54292f94015f36f31748e",
+  "results/processed/quality_stability_summary.csv": "9964c56d4ed2837e9046ed9e343be2acf33d450e11285edc80cf5423355b7516",
+  "results/processed/quality_stability_correlations.csv": "05fee7b9b10d80de4e70d76d683a99365473504b5844e73cb7c78a45078fa66b",
+  "results/processed/statistical_tests.csv": "7b23ba1d337bfc025780abeaefe4f257026f7b25deaca6c8712bd6690b5b8c08",
+  "results/processed/posthoc_tests.csv": "8a4fe37ba1d0e9f3f49413d0b8ce54c6de90a222ce6c70c09e0648464fa2e109",
+  "results/processed/descriptive_statistics.csv": "d7ba29e99dab2bb7556c7074d590e8827cea65553ab41510dcb0a8da3b452772"
+ }
+}

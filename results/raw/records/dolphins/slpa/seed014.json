@@ -1,0 +1,23 @@
+{
+  "algorithm": "slpa",
+  "converged": null,
+  "dataset": "dolphins",
+  "degenerate": false,
+  "f1": null,
+  "graph_id": "dolphins",
+  "instance": null,
+  "iterations": 100,
+  "largest_community_size": 41,
+  "mu_empirical": null,
+  "mu_nominal": null,
+  "nmi": null,
+  "number_of_communities": 14,
+  "onmi": null,
+  "partition_file": "partitions/dolphins/slpa/seed014.csv",
+  "partition_kind": "cover",
+  "quality": 0.2940099119233153,
+  "quality_metric": "EQ",
+  "run": 14,
+  "runtime_seconds": 0.02352388599999955,
+  "seed": 14
+}

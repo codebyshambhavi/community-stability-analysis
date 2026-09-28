@@ -1,0 +1,23 @@
+{
+  "algorithm": "slpa",
+  "converged": null,
+  "dataset": "polbooks",
+  "degenerate": false,
+  "f1": null,
+  "graph_id": "polbooks",
+  "instance": null,
+  "iterations": 100,
+  "largest_community_size": 46,
+  "mu_empirical": null,
+  "mu_nominal": null,
+  "nmi": null,
+  "number_of_communities": 7,
+  "onmi": null,
+  "partition_file": "partitions/polbooks/slpa/seed016.csv",
+  "partition_kind": "cover",
+  "quality": 0.4252409118514291,
+  "quality_metric": "EQ",
+  "run": 16,
+  "runtime_seconds": 0.04841437400000004,
+  "seed": 16
+}

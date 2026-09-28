@@ -1,0 +1,29 @@
+# Single source of truth for the experiment. Nothing below is hard-coded elsewhere.
+runs:
+  n_runs: 30            # N per (graph, algorithm); decided: 30
+  seed_start: 0         # seeds = seed_start .. seed_start + n_runs - 1  (0..29)
+
+paths:
+  data_dir: data
+  raw_dir: data/raw
+  lfr_dir: data/lfr
+  results_dir: results
+
+real_datasets: [karate, dolphins, polbooks, polblogs]
+
+lfr:
+  generator: networkit          # NetworkX's LFR_benchmark_graph distorts mu (see README)
+  n: 1000
+  tau1: 3.0                     # degree exponent
+  tau2: 1.5                     # community-size exponent
+  average_degree: 10
+  max_degree: 50
+  min_community: 20
+  max_community: 100
+  mu_levels: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7]   # NOMINAL mu; empirical mu recorded per graph
+  n_instances: 10
+  base_seed: 1000               # instance seed = base_seed + 100*mu_index + instance
+
+slpa:
+  T: 100
+  r: 0.1

@@ -1,0 +1,23 @@
+{
+  "algorithm": "flpa",
+  "converged": true,
+  "dataset": "dolphins",
+  "degenerate": false,
+  "f1": null,
+  "graph_id": "dolphins",
+  "instance": null,
+  "iterations": null,
+  "largest_community_size": 42,
+  "mu_empirical": null,
+  "mu_nominal": null,
+  "nmi": null,
+  "number_of_communities": 2,
+  "onmi": null,
+  "partition_file": "partitions/dolphins/flpa/seed026.csv",
+  "partition_kind": "hard",
+  "quality": 0.373482061627309,
+  "quality_metric": "Q",
+  "run": 26,
+  "runtime_seconds": 0.000993138999998422,
+  "seed": 26
+}

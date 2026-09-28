@@ -1,0 +1,23 @@
+{
+  "algorithm": "semi_sync_lpa",
+  "converged": true,
+  "dataset": "dolphins",
+  "degenerate": false,
+  "f1": null,
+  "graph_id": "dolphins",
+  "instance": null,
+  "iterations": 3,
+  "largest_community_size": 22,
+  "mu_empirical": null,
+  "mu_nominal": null,
+  "nmi": null,
+  "number_of_communities": 6,
+  "onmi": null,
+  "partition_file": "partitions/dolphins/semi_sync_lpa/seed014.csv",
+  "partition_kind": "hard",
+  "quality": 0.4986551164906451,
+  "quality_metric": "Q",
+  "run": 14,
+  "runtime_seconds": 0.000970589999997884,
+  "seed": 14
+}

@@ -1,0 +1,6 @@
+metric,statistic,p_value,n_blocks,algorithms_tested,test_type,notes
+NMI,63.854700854700766,1.3618456489813428e-14,70,,Friedman,70 blocks per algorithm
+ONMI,,,0,,Friedman,Insufficient data for Friedman test (need ≥3 algorithms with ≥3 blocks each)
+Omega,103.86697247706435,2.290207230994492e-22,70,,Friedman,70 blocks per algorithm
+VI,44.9495798319327,1.7350929994905078e-10,70,,Friedman,70 blocks per algorithm
+normalized_VI,44.9495798319327,1.7350929994905078e-10,70,,Friedman,70 blocks per algorithm

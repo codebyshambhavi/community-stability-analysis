@@ -1,0 +1,3 @@
+# Only needed to (re)generate LFR graphs. Generated graphs are cached in data/lfr/,
+# so running the experiments does NOT require this package.
+networkit==11.2.2

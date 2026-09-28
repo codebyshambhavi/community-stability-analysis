@@ -1,0 +1,5 @@
+algorithm,display_name,partition_type,update_scheme,citation,config_T,config_r
+lpa,LPA,hard,asynchronous,"Raghavan, Albert & Kumara (2007), Physical Review E 76, 036106",,
+semi_sync_lpa,Semi-Synchronous LPA,hard,semi-synchronous,"Cordasco & Gargano (2010), IEEE BASNA workshop",,
+flpa,FLPA,hard,queue-based asynchronous,"Traag & Subelj (2023), Scientific Reports 13, 2701",,
+slpa,SLPA,overlapping,"speaker-listener, memory-based","Xie, Szymanski & Liu (2011), ICDM Workshops",100.0,0.1

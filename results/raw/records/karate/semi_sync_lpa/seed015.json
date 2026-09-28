@@ -1,0 +1,23 @@
+{
+  "algorithm": "semi_sync_lpa",
+  "converged": true,
+  "dataset": "karate",
+  "degenerate": false,
+  "f1": null,
+  "graph_id": "karate",
+  "instance": null,
+  "iterations": 2,
+  "largest_community_size": 15,
+  "mu_empirical": null,
+  "mu_nominal": null,
+  "nmi": 0.49325301108461206,
+  "number_of_communities": 4,
+  "onmi": 0.31383078551694354,
+  "partition_file": "partitions/karate/semi_sync_lpa/seed015.csv",
+  "partition_kind": "hard",
+  "quality": 0.38231426692965154,
+  "quality_metric": "Q",
+  "run": 15,
+  "runtime_seconds": 0.0003950420000009558,
+  "seed": 15
+}

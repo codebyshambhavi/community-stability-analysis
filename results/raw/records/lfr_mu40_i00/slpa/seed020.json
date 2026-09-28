@@ -1,0 +1,23 @@
+{
+  "algorithm": "slpa",
+  "converged": null,
+  "dataset": "lfr",
+  "degenerate": false,
+  "f1": null,
+  "graph_id": "lfr_mu40_i00",
+  "instance": 0,
+  "iterations": 100,
+  "largest_community_size": 216,
+  "mu_empirical": 0.43617021276595747,
+  "mu_nominal": 0.4,
+  "nmi": null,
+  "number_of_communities": 43,
+  "onmi": 0.657430282959763,
+  "partition_file": "partitions/lfr_mu40_i00/slpa/seed020.csv",
+  "partition_kind": "cover",
+  "quality": 0.42458193596819194,
+  "quality_metric": "EQ",
+  "run": 20,
+  "runtime_seconds": 0.5818590280000535,
+  "seed": 20
+}

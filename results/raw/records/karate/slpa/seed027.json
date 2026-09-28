@@ -1,0 +1,23 @@
+{
+  "algorithm": "slpa",
+  "converged": null,
+  "dataset": "karate",
+  "degenerate": false,
+  "f1": null,
+  "graph_id": "karate",
+  "instance": null,
+  "iterations": 100,
+  "largest_community_size": 19,
+  "mu_empirical": null,
+  "mu_nominal": null,
+  "nmi": null,
+  "number_of_communities": 5,
+  "onmi": 0.5870545723337228,
+  "partition_file": "partitions/karate/slpa/seed027.csv",
+  "partition_kind": "cover",
+  "quality": 0.2531845825115056,
+  "quality_metric": "EQ",
+  "run": 27,
+  "runtime_seconds": 0.011053265999997564,
+  "seed": 27
+}

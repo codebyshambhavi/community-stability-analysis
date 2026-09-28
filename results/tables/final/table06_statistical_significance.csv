@@ -1,0 +1,21 @@
+analysis,metric,statistic,p_value,n_blocks,algorithms_tested,test_type,notes,algorithm_a,algorithm_b,wilcoxon_statistic,p_value_raw,p_value_corrected,correction_method,effect_size,effect_size_type
+friedman_omnibus,NMI,63.854700854700766,1.3618456489813428e-14,70,,Friedman,70 blocks per algorithm,,,,,,,,
+friedman_omnibus,ONMI,,,0,,Friedman,Insufficient data for Friedman test (need ≥3 algorithms with ≥3 blocks each),,,,,,,,
+friedman_omnibus,Omega,103.86697247706437,2.290207230994492e-22,70,,Friedman,70 blocks per algorithm,,,,,,,,
+friedman_omnibus,VI,44.9495798319327,1.7350929994905078e-10,70,,Friedman,70 blocks per algorithm,,,,,,,,
+friedman_omnibus,normalized_VI,44.9495798319327,1.7350929994905078e-10,70,,Friedman,70 blocks per algorithm,,,,,,,,
+wilcoxon_posthoc_holm,NMI,,,70,,,,flpa,lpa,337.0,5.914069575798581e-05,0.0001182813915159,Holm,-0.7287726358148894,rank_biserial
+wilcoxon_posthoc_holm,NMI,,,70,,,,flpa,semi_sync_lpa,102.5,2.147081944781364e-08,6.44124583434409e-08,Holm,-0.9175050301810864,rank_biserial
+wilcoxon_posthoc_holm,NMI,,,70,,,,lpa,semi_sync_lpa,465.5,0.0025162200730874,0.0025162200730874,Holm,-0.6253521126760564,rank_biserial
+wilcoxon_posthoc_holm,Omega,,,70,,,,flpa,lpa,239.0,1.7943518043444754e-06,5.383055413033426e-06,Holm,-0.807645875251509,rank_biserial
+wilcoxon_posthoc_holm,Omega,,,70,,,,flpa,semi_sync_lpa,75.5,5.6697809782133044e-09,2.267912391285321e-08,Holm,-0.9392354124748492,rank_biserial
+wilcoxon_posthoc_holm,Omega,,,70,,,,flpa,slpa,54.0,3.517650337757665e-12,2.1105902026545988e-11,Holm,-0.9565392354124748,rank_biserial
+wilcoxon_posthoc_holm,Omega,,,70,,,,lpa,semi_sync_lpa,391.5,0.0003248001611999,0.0006496003223999,Holm,-0.6849094567404427,rank_biserial
+wilcoxon_posthoc_holm,Omega,,,70,,,,lpa,slpa,96.0,1.9525578641172178e-11,9.762789320586089e-11,Holm,-0.9227364185110664,rank_biserial
+wilcoxon_posthoc_holm,Omega,,,70,,,,semi_sync_lpa,slpa,820.0,0.0134154012913242,0.0134154012913242,Holm,-0.3400402414486921,rank_biserial
+wilcoxon_posthoc_holm,VI,,,70,,,,flpa,lpa,165.0,8.987389313509484e-08,2.696216794052845e-07,Holm,-0.8672032193158954,rank_biserial
+wilcoxon_posthoc_holm,VI,,,70,,,,flpa,semi_sync_lpa,238.0,8.296449362966174e-06,1.6592898725932348e-05,Holm,-0.8084507042253521,rank_biserial
+wilcoxon_posthoc_holm,VI,,,70,,,,lpa,semi_sync_lpa,784.0,0.177134192135179,0.177134192135179,Holm,-0.3690140845070422,rank_biserial
+wilcoxon_posthoc_holm,normalized_VI,,,70,,,,flpa,lpa,165.0,8.987389313509484e-08,2.696216794052845e-07,Holm,-0.8672032193158954,rank_biserial
+wilcoxon_posthoc_holm,normalized_VI,,,70,,,,flpa,semi_sync_lpa,238.0,8.296449362966174e-06,1.6592898725932348e-05,Holm,-0.8084507042253521,rank_biserial
+wilcoxon_posthoc_holm,normalized_VI,,,70,,,,lpa,semi_sync_lpa,784.0,0.177134192135179,0.177134192135179,Holm,-0.3690140845070422,rank_biserial

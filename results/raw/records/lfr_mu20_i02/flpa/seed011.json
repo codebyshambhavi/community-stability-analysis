@@ -1,0 +1,23 @@
+{
+  "algorithm": "flpa",
+  "converged": true,
+  "dataset": "lfr",
+  "degenerate": false,
+  "f1": null,
+  "graph_id": "lfr_mu20_i02",
+  "instance": 2,
+  "iterations": null,
+  "largest_community_size": 98,
+  "mu_empirical": 0.2440318302387268,
+  "mu_nominal": 0.2,
+  "nmi": 1.0,
+  "number_of_communities": 18,
+  "onmi": 1.0,
+  "partition_file": "partitions/lfr_mu20_i02/flpa/seed011.csv",
+  "partition_kind": "hard",
+  "quality": 0.689149839334639,
+  "quality_metric": "Q",
+  "run": 11,
+  "runtime_seconds": 0.023062715999969896,
+  "seed": 11
+}
