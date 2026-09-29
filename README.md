@@ -89,8 +89,7 @@ The project deliberately distinguishes the algorithm implementations rather than
 - **FLPA:** implemented as a wrapper around NetworkX's `fast_label_propagation_communities(seed=...)`.
 - **SLPA:** overlapping, memory-based propagation with primary parameters `T=100` and `r=0.1`. Seed-controlled listener order is used.
 
-The original methodology records these implementation decisions explicitly. fileciteturn17file0L55-L66
-
+The original methodology records these implementation decisions explicitly.
 ---
 
 # Datasets
@@ -169,7 +168,7 @@ data/lfr/*/meta.json
 results/processed/lfr_instances.csv
 ```
 
-The project also documents that its NetworKit generator is a reimplementation rather than the original Lancichinetti binary. fileciteturn17file0L47-L53
+The project also documents that its NetworKit generator is a reimplementation rather than the original Lancichinetti binary.
 
 ---
 
