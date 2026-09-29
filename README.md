@@ -19,7 +19,7 @@ This project studies that **run-to-run stability** for four label-propagation-ba
 
 The study repeatedly runs each algorithm on the same network, compares the resulting community structures pairwise, and relates stability to community quality and network structure.
 
-The project is **not proposing a new community-detection algorithm**. It is an empirical and reproducible comparison of existing methods. The original project README explicitly framed the work as reporting the algorithms' observed behavior rather than introducing a new method. fileciteturn17file0L3-L4
+The project is **not proposing a new community-detection algorithm**. It is an empirical and reproducible comparison of existing methods. The original project README explicitly framed the work as reporting the algorithms' observed behavior rather than introducing a new method.
 
 ---
 
@@ -336,8 +336,8 @@ The project then studies their relationship rather than treating one as a substi
              ▼                             ▼
     ┌─────────────────┐          ┌─────────────────┐
     │ Stability       │          │ Community       │
-    │ VI/NVI/NMI/     │          │ Quality        │
-    │ Omega/ONMI      │          │ Q/EQ/GT        │
+    │ VI/NVI/NMI/     │          │ Quality         │
+    │ Omega/ONMI      │          │ Q/EQ/GT         │
     └────────┬────────┘          └────────┬────────┘
              │                            │
              └─────────────┬──────────────┘
@@ -382,8 +382,6 @@ The implementation is organized as a sequence of stages.
 | 10 | Figures and tables | ✅ |
 | 11 | Final experiment assembly and validation | ✅ |
 
-The original Claude README described the early development stages as a build-status table; this version updates that structure to reflect the **completed final project** rather than leaving stages 8–11 marked as pending. fileciteturn17file0L6-L18
-
 ---
 
 # Stage 5 — Experiment Runner
@@ -407,7 +405,7 @@ For each run it stores:
 - convergence information,
 - degeneracy information.
 
-The storage layer uses atomic writes and can skip already-complete runs, allowing interrupted experiments to be resumed. `runs.csv` is rebuilt deterministically from the stored run records rather than treated as an append-only log. fileciteturn17file0L73-L78
+The storage layer uses atomic writes and can skip already-complete runs, allowing interrupted experiments to be resumed. `runs.csv` is rebuilt deterministically from the stored run records rather than treated as an append-only log.
 
 ---
 
@@ -436,7 +434,7 @@ results/processed/pairwise.csv
 results/processed/stability_summary.csv
 ```
 
-Bootstrap resampling is performed at the **run level**, rather than treating the 435 pairwise comparisons as independent observations. A deterministic seed stream makes the analysis reproducible. fileciteturn17file0L81-L104
+Bootstrap resampling is performed at the **run level**, rather than treating the 435 pairwise comparisons as independent observations. A deterministic seed stream makes the analysis reproducible.
 
 ---
 
@@ -462,7 +460,7 @@ results/processed/quality_stability_correlations.csv
 results/figures/stage7/
 ```
 
-Spearman correlations are calculated using the graph–algorithm group as the unit of observation rather than individual pairwise comparisons. The analysis is descriptive and does not produce an overall algorithm ranking. fileciteturn17file0L108-L139
+Spearman correlations are calculated using the graph–algorithm group as the unit of observation rather than individual pairwise comparisons. The analysis is descriptive and does not produce an overall algorithm ranking.
 
 ---
 
@@ -678,7 +676,7 @@ The tests cover:
 
 The project records seeds, dataset metadata, algorithm identity, graph identity, run metadata, quality metrics, runtime, degeneracy/convergence information, and partition references.
 
-Dataset integrity is additionally supported through SHA-256 manifests and preprocessing metadata. The original project design explicitly uses manifest checksums to detect byte-level dataset changes. fileciteturn17file0L42-L45
+Dataset integrity is additionally supported through SHA-256 manifests and preprocessing metadata. The original project design explicitly uses manifest checksums to detect byte-level dataset changes.
 
 The completed experiment contains:
 
@@ -766,11 +764,7 @@ Xie, J., Szymanski, B. K., & Liu, X. (2011). *SLPA: Uncovering overlapping commu
 
 ---
 
-# Project Status
-
-## ✅ Completed
-
-The final project contains:
+# The final project contains:
 
 - complete algorithm implementations,
 - real and synthetic benchmark networks,
@@ -783,5 +777,3 @@ The final project contains:
 - final figures and tables,
 - automated tests,
 - reproducibility metadata.
-
-**This repository is intended to document the complete experimental study, not just the source code.**
