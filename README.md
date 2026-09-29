@@ -105,7 +105,7 @@ The experiment uses **4 real-world networks** and **70 synthetic LFR networks**.
 | **PolBooks** | 105 | 441 | None | Not currently verified |
 | **PolBlogs** | 1,222 | 16,714 | Symmetrize, remove self-loops/weights, keep LCC | Not currently verified |
 
-The Karate ground truth was verified against the NetworkX `club` labels and edge set. Dolphins has no agreed ground truth in the project. PolBooks and PolBlogs ground-truth evaluation is only used where label data can be obtained and alignment verified. fileciteturn17file0L31-L45
+The Karate ground truth was verified against the NetworkX `club` labels and edge set. Dolphins has no agreed ground truth in the project. PolBooks and PolBlogs ground-truth evaluation is only used where label data can be obtained and alignment verified.
 
 ### PolBlogs preprocessing
 
@@ -124,7 +124,7 @@ The resulting analysis graph contains:
 16,714 edges
 ```
 
-The preprocessing details and original-ID mapping are retained in the project outputs. fileciteturn17file0L40-L42
+The preprocessing details and original-ID mapping are retained in the project outputs.
 
 ---
 
@@ -262,7 +262,7 @@ Omega = 1    → identical covers/partitions
 
 Used for overlapping community structures produced by SLPA.
 
-The project does **not** force hard-partition metrics onto overlapping covers. The metric selection is representation-aware. fileciteturn17file0L81-L104
+The project does **not** force hard-partition metrics onto overlapping covers. The metric selection is representation-aware.
 
 ### Metric applicability
 
@@ -298,7 +298,7 @@ community structures according to
 the selected quality criterion?"
 ```
 
-The project then studies their relationship rather than treating one as a substitute for the other. fileciteturn17file0L108-L129
+The project then studies their relationship rather than treating one as a substitute for the other.
 
 ---
 
